@@ -9,21 +9,31 @@ import java.io.File;
 import java.util.*;
 
 public class MineSweeperWithFlags1 {
-    
+    /**
+     * Constructor for MineSweeperWithFlags1. Initializes the game board and UI.
+     */
 
     private static final int MINE = -10;
     private static final int SIZE = 700;
     private static final double MINE_MULTIPLIER = 1.5;
     // MINE_MULTIPLIER = 2;
     private static Cell[] reusableStorage = new Cell[8];
+    private static final int debug = 1;
     private final int gridSize;
     private Cell[][] cells;
     private JFrame frame;
     private JButton reset;
     private JButton giveUp;
     private JButton changeDif;
-    private final static String Flagadress = "C:\\Users\\robkr\\Desktop\\flag2.png";
-    
+    private final static String Flagadress = "/flag2.png";
+
+    private static final ImageIcon FLAG_ICON = loadFlagIcon();
+
+    // store icon in static variable
+    private static ImageIcon loadFlagIcon() {
+        java.net.URL flagUrl = MineSweeperWithFlags1.class.getResource(Flagadress);
+        return flagUrl != null ? new ImageIcon(flagUrl) : null;
+    }
 
     private final ActionListener actionListener = actionEvent -> {
         Object source = actionEvent.getSource();
@@ -31,16 +41,21 @@ public class MineSweeperWithFlags1 {
             createMines();
         } else if (source == giveUp) {
             revealBoardAndDisplay("You gave up.");
-        } else if (source == changeDif){
-            createMines();}
-        
-        else {
-            // handleCell((Cell) source);
+        } else if (source == changeDif) {
+            createMines();
+        } else if (source instanceof Cell) {
+            // Optionally handle cell click or do nothing
+        } else {
+            if (debug == 1) {
+                System.out.println("Unknown source: " + source);
+            }
         }
+        // System.err.println("Unknown source: " + source);
+        // handleCell((Cell) source);
     };
 
     private class Cell extends JButton {
-        
+
         private final int row;
         private final int col;
         private int value;
@@ -84,12 +99,16 @@ public class MineSweeperWithFlags1 {
         }
 
         void reveal() {
-            
+
             setEnabled(false);
-            setText(isAMine() ? "X" : String.valueOf(value));
-            //set Icon
-            setIcon(null); 
-// TEST set Icon?
+            if (isAMine()) {
+                setText("X");
+            } else if (value == 0) {
+                setText("");
+            } else {
+                setText(String.valueOf(value));
+            }
+            setIcon(null);
         }
 
         void updateNeighbourCount() {
@@ -160,9 +179,8 @@ public class MineSweeperWithFlags1 {
                 // setText("");
             } else {
                 isFlagged = true;
+                setIcon(FLAG_ICON);
                 // setText("#");
-                setIcon(new ImageIcon(Flagadress));
-                
             }
         }
 
@@ -178,11 +196,15 @@ public class MineSweeperWithFlags1 {
 
         // @Override
         // public int hashCode() {
-        //     return Objects.hash(row, col);
+        // return Objects.hash(row, col);
         // }
     }
 
     private MineSweeperWithFlags1(final int gridSize) {
+        /**
+         * Initializes the button panel with Reset, Give Up, and Change Difficulty
+         * buttons.
+         */
         this.gridSize = gridSize;
         cells = new Cell[gridSize][gridSize];
 
@@ -199,6 +221,9 @@ public class MineSweeperWithFlags1 {
     }
 
     private void initializeButtonPanel() {
+        /**
+         * Initializes the grid of cells for the Minesweeper game.
+         */
         JPanel buttonPanel = new JPanel();
 
         reset = new JButton("Reset");
@@ -213,10 +238,13 @@ public class MineSweeperWithFlags1 {
         buttonPanel.add(giveUp);
         buttonPanel.add(changeDif);
         frame.add(buttonPanel, BorderLayout.SOUTH);
-        
+
     }
 
     private void initializeGrid() {
+        /**
+         * Resets all cells to their initial state.
+         */
         Container grid = new Container();
         grid.setLayout(new GridLayout(gridSize, gridSize));
 
@@ -231,6 +259,9 @@ public class MineSweeperWithFlags1 {
     }
 
     private void resetAllCells() {
+        /**
+         * Randomly places mines and updates neighbor counts for all cells.
+         */
         for (int row = 0; row < gridSize; row++) {
             for (int col = 0; col < gridSize; col++) {
                 cells[row][col].reset();
@@ -239,6 +270,9 @@ public class MineSweeperWithFlags1 {
     }
 
     private void createMines() {
+        /**
+         * Reveals the entire board and displays a message (e.g., on game over).
+         */
         resetAllCells();
 
         final int mineCount = (int) (MINE_MULTIPLIER * gridSize);
@@ -268,25 +302,30 @@ public class MineSweeperWithFlags1 {
     }
 
     private void revealBoardAndDisplay(String message) {
+        /**
+         * Cascades the reveal for all connected empty cells (value == 0).
+         */
         for (int row = 0; row < gridSize; row++) {
             for (int col = 0; col < gridSize; col++) {
-                if (!cells[row][col].isEnabled()) { //if not enabled
+                if (!cells[row][col].isEnabled()) { // if not enabled
                     continue; // Skip already revealed cells
                 }
-    
-                cells[row][col].reveal(); //after check reveal
+
+                cells[row][col].reveal(); // after check reveal
             }
         }
-    
+
         JOptionPane.showMessageDialog(
                 frame, message, "Game Over",
                 JOptionPane.ERROR_MESSAGE);
-    
+
         createMines();
     }
-    
 
     private void cascade(Set<Cell> positionsToClear) {
+        /**
+         * Checks if the player has won the game.
+         */
         while (!positionsToClear.isEmpty()) {
             Cell cell = positionsToClear.iterator().next();
             positionsToClear.remove(cell);
@@ -307,6 +346,9 @@ public class MineSweeperWithFlags1 {
     }
 
     private void checkForWin() {
+        /**
+         * Runs the Minesweeper game with the specified grid size.
+         */
         boolean won = true;
         outer: for (Cell[] cellRow : cells) {
             for (Cell cell : cellRow) {
@@ -325,6 +367,9 @@ public class MineSweeperWithFlags1 {
     }
 
     private static void run(final int gridSize) {
+        /**
+         * Main entry point for the Minesweeper game.
+         */
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
@@ -334,7 +379,12 @@ public class MineSweeperWithFlags1 {
     }
 
     public static void main(String[] args) {
-        System.out.println(new File(Flagadress).exists() ? "flag loaded correctly" : "fehler");
+
+        if (debug == 1) {
+            System.out.println(
+                    MineSweeperWithFlags1.class.getResource(Flagadress) != null ? "flag loaded correctly" : "error");
+            System.out.println("Debugging is enabled");
+        }
 
         final int gridSize = 15;
         SwingUtilities.invokeLater(() -> MineSweeperWithFlags1.run(gridSize));
