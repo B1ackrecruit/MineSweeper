@@ -17,7 +17,7 @@ A simple Java implementation of the classic Minesweeper game with flagging funct
 ## How to Run
 1. Clone the repository:
    ```
-   git clone https://github.com/B1ackrecruit/MineSweeper.git
+   git clone https://github.com/rkreitschmann/MineSweeper
    ```
 2. Navigate to the project directory:
    ```
