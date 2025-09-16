@@ -1,4 +1,4 @@
-# MineSweeper4
+# MineSweeperv4
 
 A simple Java implementation of the classic Minesweeper game with flagging functionality and a graphical user interface (GUI) using Swing.
 
